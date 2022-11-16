@@ -1,0 +1,42 @@
+accelerator:
+  displayName: Setup Developer Namespace for TAP
+  description: Accelerator to prepare developer namespace for TAP workloads
+  iconUrl: https://cdn2.iconfinder.com/data/icons/mixd/512/20_kubernetes-512.png
+  tags:
+  - developer
+  - namespace
+
+  options:
+  - name: devNamespace
+    label: Enter Developer Namespace
+    inputType: text
+    required: true
+    dataType: string
+    defaultValue: dev-tap
+  - name: harborURL
+    label: Harbor URL
+    description: Enter URL without https
+    inputType: text
+    dataType: string
+    defaultValue: harbor.dorn.gorke.ml
+  - name: harborUser
+    label: Harbor username to push image
+    description: Please type the username to push image
+    inputType: text
+    dataType: string
+    defaultValue: robot-account-push-user
+  - name: harborPass
+    label: Harbor password to push image
+    description: Please type the password to push image
+    inputType: text
+    dataType: string
+    defaultValue: robot-account-push-password
+engine:
+  let:
+    - name: emptyVar
+      expression: "''"
+  merge:
+    - includes: ["config/**"]
+      excludes: [ "accelerator.yaml","accelerator-deploy.yaml" ]
+      chain:
+        - type: YTT

@@ -1,0 +1,180 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:json", "json")
+
+#@ if data.values.devNamespace != "default" and data.values.devNamespace != "":
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.devNamespace
+---
+#@ def config():
+#@  return {
+#@    "auths": {
+#@      data.values.harborURL: {
+#@        "username": data.values.harborUser,
+#@        "password": data.values.harborPass
+#@      }
+#@    }
+#@  }
+#@ end
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-credentials
+  namespace: #@ data.values.devNamespace
+type: kubernetes.io/dockerconfigjson
+stringData:
+  .dockerconfigjson: #@ json.encode(config())
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: #@ data.values.devNamespace
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: #@ data.values.devNamespace
+secrets:
+  - name: registry-credentials
+imagePullSecrets:
+  - name: registry-credentials
+  - name: tap-registry
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: default
+  namespace: #@ data.values.devNamespace
+rules:
+- apiGroups: [source.toolkit.fluxcd.io]
+  resources: [gitrepositories]
+  verbs: ['*']
+- apiGroups: [source.apps.tanzu.vmware.com]
+  resources: [imagerepositories]
+  verbs: ['*']
+- apiGroups: [carto.run]
+  resources: [deliverables, runnables]
+  verbs: ['*']
+- apiGroups: [kpack.io]
+  resources: [images]
+  verbs: ['*']
+- apiGroups: [conventions.apps.tanzu.vmware.com]
+  resources: [podintents]
+  verbs: ['*']
+- apiGroups: [""]
+  resources: ['configmaps']
+  verbs: ['*']
+- apiGroups: [""]
+  resources: ['pods']
+  verbs: ['list']
+- apiGroups: [tekton.dev]
+  resources: [taskruns, pipelineruns]
+  verbs: ['*']
+- apiGroups: [tekton.dev]
+  resources: [pipelines]
+  verbs: ['list']
+- apiGroups: [kappctrl.k14s.io]
+  resources: [apps]
+  verbs: ['*']
+- apiGroups: [serving.knative.dev]
+  resources: ['services']
+  verbs: ['*']
+- apiGroups: [servicebinding.io]
+  resources: ['servicebindings']
+  verbs: ['*']
+- apiGroups: [services.apps.tanzu.vmware.com]
+  resources: ['resourceclaims']
+  verbs: ['*']
+- apiGroups: [scanning.apps.tanzu.vmware.com]
+  resources: ['imagescans', 'sourcescans']
+  verbs: ['*']
+- apiGroups: [sql.tanzu.vmware.com]
+  resources: ['postgres']
+  verbs: ['*']
+- apiGroups: [apps]
+  resources: ['statefulsets','deployment']
+  verbs: ['*']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default
+  namespace: #@ data.values.devNamespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: default
+subjects:
+  - kind: ServiceAccount
+    name: default
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: developer-defined-tekton-pipeline
+  namespace: #@ data.values.devNamespace
+  labels:
+    apps.tanzu.vmware.com/pipeline: test
+spec:
+  params:
+    - name: source-url
+    - name: source-revision
+  tasks:
+    - name: test
+      params:
+        - name: source-url
+          value: $(params.source-url)
+        - name: source-revision
+          value: $(params.source-revision)
+      taskSpec:
+        params:
+          - name: source-url
+          - name: source-revision
+        steps:
+          - name: test
+            image: gradle
+            script: |-
+              cd `mktemp -d`
+              wget -qO- $(params.source-url) | tar xvz
+---
+apiVersion: scanning.apps.tanzu.vmware.com/v1beta1
+kind: ScanPolicy
+metadata:
+  name: scan-policy
+  namespace: #@ data.values.devNamespace
+spec:
+  regoFile: |
+    package main
+    # Accepted Values: "Critical", "High", "Medium", "Low", "Negligible", "UnknownSeverity"
+    notAllowedSeverities := ["Critical","High","UnknownSeverity"]
+    ignoreCves := []
+    contains(array, elem) = true {
+      array[_] = elem
+    } else = false { true }
+    isSafe(match) {
+      fails := contains(notAllowedSeverities, match.ratings.rating[_])
+      not fails
+    }
+    isSafe(match) {
+      ignore := contains(ignoreCves, match.Id)
+      ignore
+    }
+    deny[msg] {
+      comp := input.bom.components.component[_]
+      vuln := comp.vulnerabilities.vulnerability[_]
+      ratings := vuln.ratings.rating[_]
+      not isSafe(vuln)
+      msg = sprintf("CVE %s %s %s", [comp.name, vuln.id, ratings])
+    }
+#@ end

@@ -1,0 +1,19 @@
+apiVersion: accelerator.apps.tanzu.vmware.com/v1alpha1
+kind: Accelerator
+metadata:
+  name: dev-ns-prep
+spec:
+  displayName: Dev Namespace Prep
+  description: Dev Namespace Prep
+    
+    
+  iconUrl: https://cdn2.iconfinder.com/data/icons/mixd/512/20_kubernetes-512.png
+  tags:
+    - developer
+    - namespace
+    - tap
+  git:
+    ignore: ".git/, target, catalog"
+    url: https://github.com/gorkemozlu/tap-dev-ns-prep
+    ref:
+      branch: main
