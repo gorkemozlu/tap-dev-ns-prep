@@ -4,7 +4,7 @@ metadata:
   name: dev-ns-prep
 spec:
   displayName: Dev Namespace Prep
-  description: Dev Namespace Prep
+  description: Setup Dev Namespace for TAP
     
     
   iconUrl: https://cdn2.iconfinder.com/data/icons/mixd/512/20_kubernetes-512.png
