@@ -131,9 +131,9 @@ metadata:
 spec:
   hard:
     requests.cpu: #@ data.values.cpuRequest
-    requests.memory: #@ data.values.memoryRequest+ "Gi"
+    requests.memory: #@ data.values.memoryRequest
     limits.cpu: #@ data.values.cpuLimit
-    limits.memory: #@ data.values.memoryLimit + "Gi"
+    limits.memory: #@ data.values.memoryLimit
 #@ end
 ---
 #@ if data.values.kubectlAccessState:
