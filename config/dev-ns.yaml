@@ -27,7 +27,7 @@ metadata:
   namespace: #@ data.values.devNamespace
 type: kubernetes.io/dockerconfigjson
 stringData:
-  .dockerconfigjson: #@ json.encode(config())
+  .dockerconfigjson: #@ base64.encode("{}".format(yaml.decode(yaml.encode(config()))))
 ---
 apiVersion: v1
 kind: Secret
