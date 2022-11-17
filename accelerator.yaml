@@ -31,6 +31,56 @@ accelerator:
     inputType: text
     dataType: string
     defaultValue: robot-account-push-password
+  - name: cpuMemState
+    label: Enable CPU/Memory quote on dev namespace
+    description: If not enabled, dev ns will have no cpu/memory quote
+    inputType: text
+    dataType: boolean
+  - name: cpuRequest
+    label: Set CPU Request
+    description: Please enter the CPU Request Value
+    inputType: text
+    dataType: string
+    dependsOn:
+      name: cpuMemState
+    defaultValue: 5
+  - name: memoryRequest
+    label: Set Memory Request
+    description: Please enter the Memory Request Value
+    inputType: text
+    dataType: string
+    dependsOn:
+      name: cpuMemState
+    defaultValue: 3
+  - name: cpuLimit
+    label: Set CPU Limit
+    description: Please enter the CPU Limit Value
+    inputType: text
+    dataType: string
+    dependsOn:
+      name: cpuMemState
+    defaultValue: 10
+  - name: memoryLimit
+    label: Set Memory Limit
+    description: Please enter the Memory Limit Value
+    inputType: text
+    dataType: string
+    dependsOn:
+      name: cpuMemState
+    defaultValue: 5
+  - name: kubectlAccessState
+    label: Enable kubectl access on dev namespace
+    description: If not enabled, developer will only use TAP-GUI.
+    inputType: text
+    dataType: boolean
+  - name: kubectlUser
+    label: Set login user
+    description: Please enter the username to login
+    inputType: text
+    dataType: string
+    dependsOn:
+      name: kubectlAccessState
+    defaultValue: dev@vsphere.local
 engine:
   let:
     - name: emptyVar
