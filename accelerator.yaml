@@ -40,7 +40,7 @@ accelerator:
     label: Set CPU Request
     description: Please enter the CPU Request Value
     inputType: number
-    dataType: string
+    dataType: number
     dependsOn:
       name: cpuMemState
     defaultValue: 5
@@ -48,7 +48,7 @@ accelerator:
     label: Set Memory Request
     description: Please enter the Memory Request Value
     inputType: number
-    dataType: string
+    dataType: number
     dependsOn:
       name: cpuMemState
     defaultValue: 3
@@ -56,7 +56,7 @@ accelerator:
     label: Set CPU Limit
     description: Please enter the CPU Limit Value
     inputType: number
-    dataType: string
+    dataType: number
     dependsOn:
       name: cpuMemState
     defaultValue: 10
@@ -64,7 +64,7 @@ accelerator:
     label: Set Memory Limit
     description: Please enter the Memory Limit Value
     inputType: number
-    dataType: string
+    dataType: number
     dependsOn:
       name: cpuMemState
     defaultValue: 5
