@@ -155,7 +155,7 @@ metadata:
 subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: User
-  name: #@ "sso:" + data.values.devUser
+  name: #@ "sso:" + data.values.kubectlUser
 roleRef:
   kind: Role
   name: dev-ns-full-access
