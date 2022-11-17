@@ -39,7 +39,7 @@ accelerator:
   - name: cpuRequest
     label: Set CPU Request
     description: Please enter the CPU Request Value
-    inputType: number
+    inputType: text
     dataType: number
     dependsOn:
       name: cpuMemState
@@ -47,15 +47,15 @@ accelerator:
   - name: memoryRequest
     label: Set Memory Request
     description: Please enter the Memory Request Value
-    inputType: number
-    dataType: number
+    inputType: text
+    dataType: string
     dependsOn:
       name: cpuMemState
-    defaultValue: 3
+    defaultValue: 3Gi
   - name: cpuLimit
     label: Set CPU Limit
     description: Please enter the CPU Limit Value
-    inputType: number
+    inputType: text
     dataType: number
     dependsOn:
       name: cpuMemState
@@ -63,11 +63,11 @@ accelerator:
   - name: memoryLimit
     label: Set Memory Limit
     description: Please enter the Memory Limit Value
-    inputType: number
-    dataType: number
+    inputType: text
+    dataType: string
     dependsOn:
       name: cpuMemState
-    defaultValue: 5
+    defaultValue: 5Gi
   - name: kubectlAccessState
     label: Enable kubectl access on dev namespace
     description: If not enabled, developer will only use TAP-GUI.
