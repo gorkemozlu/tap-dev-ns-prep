@@ -122,6 +122,46 @@ subjects:
   - kind: ServiceAccount
     name: default
 ---
+#@ if data.values.cpuMemState:
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: mem-cpu-dev
+  namespace: #@ data.values.devNamespace
+spec:
+  hard:
+    requests.cpu: #@ data.values.cpuRequest
+    requests.memory: #@ data.values.memoryRequest+ "Gi"
+    limits.cpu: #@ data.values.cpuLimit
+    limits.memory: #@ data.values.memoryLimit + "Gi"
+#@ end
+---
+#@ if data.values.kubectlAccessState:
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dev-ns-full-access
+  namespace: #@ data.values.devNamespace
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["*"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dev-ns-rolebinding
+  namespace: #@ data.values.devNamespace
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: #@ "sso:" + data.values.devUser
+roleRef:
+  kind: Role
+  name: dev-ns-full-access
+  apiGroup: rbac.authorization.k8s.io
+#@ end
+---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
