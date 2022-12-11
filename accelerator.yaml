@@ -18,7 +18,7 @@ accelerator:
     description: Enter URL without https
     inputType: text
     dataType: string
-    defaultValue: harbor.dorn.gorke.ml
+    defaultValue: harbor.mgt.mytanzu.org
   - name: harborUser
     label: Harbor username to push image
     description: Please type the username to push image
